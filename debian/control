@@ -1,0 +1,16 @@
+Source: r5u870
+Section: misc
+Priority: optional
+Maintainer: Kel Modderman <kel@otaku42.de>
+Build-Depends: debhelper (>= 6), quilt, bzip2
+Standards-Version: 3.7.3
+Homepage: http://wiki.mediati.org/R5u870
+
+Package: r5u870-source
+Architecture: all
+Depends: module-assistant, debhelper (>= 6), make, bzip2
+Description: source code of driver for Ricoh R5U870 OEM cameras
+ This kernel module provides Linux support for webcams found in a some Sony
+ and a few HP laptops that use the OEM Ricoh cameras.
+ .
+ Kernel source or headers are required to compile these modules.

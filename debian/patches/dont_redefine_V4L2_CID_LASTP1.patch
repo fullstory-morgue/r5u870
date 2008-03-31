@@ -1,0 +1,14 @@
+This is defined already in include/linux/videodev2.h
+
+--- a/r5u870.c
++++ b/r5u870.c
+@@ -864,7 +864,9 @@
+ #define V4L2_CID_PRIVACY		(V4L2_CID_BASE+28)
+ #define V4L2_CID_NIGHT_MODE		(V4L2_CID_BASE+29)
+ #define V4L2_CID_SHARPNESS		(V4L2_CID_BASE+30)
++#ifndef V4L2_CID_LASTP1
+ #define V4L2_CID_LASTP1			(V4L2_CID_BASE+31) /* last CID + 1 */
++#endif
+ 
+ static const char *r5u870_powerline_names[] = { "Off", "50Hz", "60Hz" };
+ 

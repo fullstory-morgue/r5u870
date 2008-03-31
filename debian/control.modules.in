@@ -1,0 +1,15 @@
+Source: r5u870
+Section: misc
+Priority: optional
+Maintainer: Kel Modderman <kel@otaku42.de>
+Build-Depends: debhelper (>= 6), module-assistant, bzip2
+Standards-Version: 3.7.3
+Homepage: http://wiki.mediati.org/R5u870
+
+Package: r5u870-modules-_KVERS_
+Architecture: any
+Depends: linux-image-_KVERS_
+Description: Ricohr5u870 modules for Linux (kernel _KVERS_).
+ This package contains the set of loadable kernel modules for the
+ linux-image-_KVERS_-package, that provide support for Ricoh R5U870 OEM
+ cameras.

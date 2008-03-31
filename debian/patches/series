@@ -1,0 +1,2 @@
+sanitize_makefile.patch
+dont_redefine_V4L2_CID_LASTP1.patch

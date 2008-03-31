@@ -1,0 +1,84 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+include /usr/share/quilt/quilt.make
+
+build: build-stamp
+build-stamp: $(QUILT_STAMPFN)
+	dh_testdir
+	touch $@
+
+clean: unpatch
+	dh_testdir
+	dh_testroot
+	dh_clean build-stamp install-stamp
+
+install: build install-stamp
+install-stamp:
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	
+	install -D -m 0755 debian/rules.modules \
+		debian/tmp/modules/r5u870/debian/rules
+	
+	for f in *.modules.in control compat copyright changelog; do \
+		install -m 0644 debian/$$f \
+			debian/tmp/modules/r5u870/debian/; \
+	done
+	
+	find . -path ./debian/\* -type d -prune -o -printf "%P\n" | \
+		egrep -v 'debian|.svn|.pc' | \
+		cpio -admp debian/tmp/modules/r5u870/
+	
+	mkdir -p debian/r5u870-source/usr/src/
+	tar jcf debian/r5u870-source/usr/src/r5u870.tar.bz2 \
+		-C debian/tmp modules
+	
+	touch $@
+
+binary-arch:
+# We have nothing to do by default.
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_install
+	dh_installdocs
+	dh_installchangelogs
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean install binary-indep binary-arch binary
+
+UPSVERS := $(shell dpkg-parsechangelog | sed -n 's/^Version.*: \([^+]*\).*/\1/p')
+DEBVERS := $(UPSVERS)+dfsg
+ORIGTAR := r5u870-$(UPSVERS).tar.gz
+ORIGDIR := r5u870-$(UPSVERS)
+ORIGURL := http://mediati.org/r5u870/
+DFSGTAR := r5u870_$(DEBVERS).orig.tar.gz
+
+get-orig-source:
+	@dh_testdir
+	
+	@test -d ../tarballs || mkdir -p ../tarballs
+	@rm -rf ../tarballs/$(ORIGDIR)
+	
+	@wget -c -O ../tarballs/$(ORIGTAR) $(ORIGURL)$(ORIGTAR)
+	
+	@tar xzf ../tarballs/$(ORIGTAR) -C ../tarballs
+	
+	@echo -n "Creating dfsg-free tarball: "
+	@tar czf ../tarballs/$(DFSGTAR) --exclude='r5u870_*.fw' \
+	      -C ../tarballs $(ORIGDIR)
+	@echo "../tarballs/$(DFSGTAR)"
+	
+	@rm -rf ../tarballs/$(ORIGDIR)

@@ -1,0 +1,22 @@
+This package was debianized by Jonny Lamb <jonnylamb@jonnylamb.com> on
+Wed, 23 Jan 2008 02:43:41 +0000.
+
+It was downloaded from http://svn.mediati.org/svn/r5u870/trunk
+
+Upstream Authors:
+	Sam Revitch <samr7@cs.washington.edu>
+	Alexander Hixon <hixon.alexander@mediati.org>
+
+Copyright:
+    Copyright (C) 2007 Sam Revitch <samr7@cs.washington.edu>
+    Copyright (c) 2008 Alexander Hixon <hixon.alexander@mediati.org>
+
+License:
+    You are free to distribute this software under the terms of
+    the GNU General Public License  either version 2 of the License,
+    or (at your option) any later version.
+    On Debian systems, the complete text of the GNU General Public
+    License can be found in the file `/usr/share/common-licenses/GPL-2'.
+
+The Debian packaging is (C) 2007, Jonny Lamb <jonnylamb@jonnylamb.com> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
