@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Kel Modderman <kel@otaku42.de>
 Build-Depends: debhelper (>= 6), quilt, bzip2
 Standards-Version: 3.7.3
-Homepage: http://wiki.mediati.org/R5u870
+Homepage: http://wiki.mediati.org/R5u870/
 
 Package: r5u870-source
 Architecture: all

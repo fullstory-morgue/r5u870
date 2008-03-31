@@ -18,9 +18,8 @@ binary-modules: kdist_config
 	$(MAKE) -C $(CURDIR) KVER=$(KVERS) KDIR=$(KSRC)
 	
 	# Install modules
-	install -d $(CURDIR)/debian/$(PKGNAME)/lib/modules/$(KVERS)/extra/r5u870/
-	install -m 0644 *.ko usbcam/*.ko \
-		$(CURDIR)/debian/$(PKGNAME)/lib/modules/$(KVERS)/extra/r5u870/
+	$(MAKE) -C $(CURDIR) install KVER=$(KVERS) KDIR=$(KSRC) \
+		DESTDIR=$(CURDIR)/debian/$(PKGNAME) MDIR=extra
 	
 	dh_installdocs
 	dh_installchangelogs
