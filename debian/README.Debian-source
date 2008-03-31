@@ -1,0 +1,3 @@
+The firmware blobs have been removed from the original tarball to meet the
+requirements of the DFSG, use debina/rules get-orig-source to fetch a sanitized
+upstream tarball.
