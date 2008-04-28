@@ -1,2 +1,3 @@
 sanitize_makefile.patch
 dont_redefine_V4L2_CID_LASTP1.patch
+kcompat-2.6.25.patch
