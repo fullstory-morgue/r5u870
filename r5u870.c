@@ -4,7 +4,7 @@
  * Copyright (c) 2008 Alexander Hixon <hixon.alexander@mediati.org>
  *
  * Check out README for additional credits.
- * Version 0.11.0
+ * Version 0.11.1
  *
  * This driver is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@
 #define r5u_err(RV, FMT...) usbcam_err((RV)->vh_parent, FMT)
 #define r5u_dbg(RV, SUBSYS, FMT...) usbcam_dbg((RV)->vh_parent, SUBSYS, FMT)
 
-#define R5U870_VERSION KERNEL_VERSION(0,11,0)
+#define R5U870_VERSION KERNEL_VERSION(0,11,1)
 #define R5U870_VERSION_EXTRA ""
 
 
@@ -148,7 +148,7 @@ struct r5u870_ctx {
 			  const struct r5u870_resolution *resp);
 	int (*vh_cap_stop)(struct r5u870_ctx *);
 	int (*vh_decide_pkt)(struct r5u870_ctx *, int st, int len,
-			     const u8 *pktdata, int *start);
+				 const u8 *pktdata, int *start);
 
 	/* Auto settings */
 	int vh_auto_wb;
@@ -164,8 +164,8 @@ struct r5u870_ctx {
  */
 
 static int r5u870_control_msg(struct r5u870_ctx *vhp, int write, int class,
-			      u8 request, u16 value, u16 index, void *data,
-			      u16 size)
+				  u8 request, u16 value, u16 index, void *data,
+				  u16 size)
 {
 	char *dbuf = NULL;
 	int res;
@@ -179,16 +179,16 @@ static int r5u870_control_msg(struct r5u870_ctx *vhp, int write, int class,
 	}
 
 	res = usb_control_msg(r5u870_dev(vhp),
-			      write
-			      ? usb_sndctrlpipe(r5u870_dev(vhp), 0)
-			      : usb_rcvctrlpipe(r5u870_dev(vhp), 0),
-			      request,
-			      (write ? USB_DIR_OUT : USB_DIR_IN) |
-			      (class
-			       ? (USB_TYPE_CLASS | USB_RECIP_INTERFACE)
-			       : (USB_TYPE_VENDOR | USB_RECIP_DEVICE)),
-			      value, index, dbuf, size,
-			      vhp->vh_timeout);
+				  write
+				  ? usb_sndctrlpipe(r5u870_dev(vhp), 0)
+				  : usb_rcvctrlpipe(r5u870_dev(vhp), 0),
+				  request,
+				  (write ? USB_DIR_OUT : USB_DIR_IN) |
+				  (class
+				   ? (USB_TYPE_CLASS | USB_RECIP_INTERFACE)
+				   : (USB_TYPE_VENDOR | USB_RECIP_DEVICE)),
+				  value, index, dbuf, size,
+				  vhp->vh_timeout);
 
 	if (dbuf) {
 		if (!write)
@@ -231,8 +231,8 @@ static int r5u870_get_ctrl(struct usbcam_dev *udp,
 }
 
 static int r5u870_query_ctrl(struct usbcam_dev *udp,
-			     const struct usbcam_ctrl *basep,
-			     struct v4l2_queryctrl *c)
+				 const struct usbcam_ctrl *basep,
+				 struct v4l2_queryctrl *c)
 {
 	struct r5u870_ctx *vhp = udp_r5u870(udp);
 	struct r5u870_ctrl *ctrlp = container_of(basep, struct r5u870_ctrl,
@@ -255,7 +255,7 @@ static int r5u870_set_controls(struct r5u870_ctx *vhp, int dflt)
 
 	res = 0;
 	list_for_each_entry(ctrlp, &vhp->vh_parent->ud_ctrl_list,
-			    base.uc_links) {
+				base.uc_links) {
 		cv.id = ctrlp->base.uc_v4l.id;
 
 		if (dflt)
@@ -271,8 +271,8 @@ static int r5u870_set_controls(struct r5u870_ctx *vhp, int dflt)
 	}
 
 	if (vhp->vh_ctrl_reg_enable &&
-	    !vhp->vh_ctrl_auto_suppress &&
-	    vhp->vh_model->rm_no_first_auto_suppress)
+		!vhp->vh_ctrl_auto_suppress &&
+		vhp->vh_model->rm_no_first_auto_suppress)
 		vhp->vh_ctrl_auto_suppress = 1;
 
 	return res;
@@ -284,14 +284,15 @@ static int r5u870_set_controls(struct r5u870_ctx *vhp, int dflt)
  */
 
 static int r5u870_set_gen_reg(struct r5u870_ctx *vhp,
-			      int cmd, int reg, int val)
+				  int cmd, int reg, int val)
 {
 	int res;
 	res = r5u870_control_msg(vhp, 1, 0, cmd, val, reg, NULL, 0);
 	if (res < 0) {
 		r5u_err(vhp, "set_gen_reg %04x/%04x/%04x failed: %d",
 			cmd, reg, val, res);
-		return res;
+	    // XXX: Only commented for debugging. UNCOMMENT BEFORE RELEASE!
+		//return res;
 	}
 	return 0;
 }
@@ -315,13 +316,13 @@ static int r5u870_microcode_upload(struct r5u870_ctx *vhp)
 		vhp->vh_model->rm_ucode_file);
 
 	res = request_firmware(&fws,
-			       vhp->vh_model->rm_ucode_file,
-			       &vhp->vh_parent->ud_dev->dev);
+				   vhp->vh_model->rm_ucode_file,
+				   &vhp->vh_parent->ud_dev->dev);
 
 	if (res) {
 		r5u_err(vhp, "Microcode file \"%s\" is missing",
 			vhp->vh_model->rm_ucode_file);
-	    r5u_err(vhp, "Please see http://wiki.mediati.org/r5u870/Microcode");
+		r5u_err(vhp, "Please see http://wiki.mediati.org/r5u870/Microcode");
 		kfree(pgbuf);
 		return res;
 	}
@@ -361,13 +362,13 @@ static int r5u870_microcode_upload(struct r5u870_ctx *vhp)
 		rem -= len;
 
 	retry:
-	    /* TODO: Maybe make this use r5u870_control_msg or similar? */
+		/* TODO: Maybe make this use r5u870_control_msg or similar? */
 		res = usb_control_msg(r5u870_dev(vhp),
-				      usb_sndctrlpipe(r5u870_dev(vhp), 0),
-				      0xa0,
-				      USB_DIR_OUT | USB_TYPE_VENDOR |
-				      USB_RECIP_DEVICE,
-				      addr, 0, pgbuf, len, vhp->vh_timeout);
+					  usb_sndctrlpipe(r5u870_dev(vhp), 0),
+					  0xa0,
+					  USB_DIR_OUT | USB_TYPE_VENDOR |
+					  USB_RECIP_DEVICE,
+					  addr, 0, pgbuf, len, vhp->vh_timeout);
 
 		if (res < 0) {
 			if (tolerance--)
@@ -632,8 +633,8 @@ static int r5u870_set_reg_wdm(struct r5u870_ctx *vhp, int reg, int val)
  * Do not call this function with the isochronous stream active.
  */
 static int r5u870_set_fmt_wdm(struct r5u870_ctx *vhp,
-			      const struct r5u870_pix_fmt *fmtp,
-			      const struct r5u870_resolution *resp)
+				  const struct r5u870_pix_fmt *fmtp,
+				  const struct r5u870_resolution *resp)
 {
 	int res;
 
@@ -736,7 +737,7 @@ static int r5u870_decide_pkt_wdm(struct r5u870_ctx *vhp, int pktstatus,
 			/* Frame was previously aborted */
 			ret = -EPIPE;
 		} else if ((vhp->vh_frame_accum + pktlen) <=
-			    vhp->vh_parent->ud_format.sizeimage) {
+				vhp->vh_parent->ud_format.sizeimage) {
 			/* Append this data */
 			vhp->vh_frame_accum += pktlen;
 		} else {
@@ -758,7 +759,7 @@ static int r5u870_set_manual_ctrls_wdm(struct r5u870_ctx *vhp, int auto_offset)
 
 	res = 0;
 	list_for_each_entry(ctrlp, &vhp->vh_parent->ud_ctrl_list,
-			    base.uc_links) {
+				base.uc_links) {
 		if (ctrlp->auto_offset != auto_offset)
 			continue;
 		if (!vhp->vh_ctrl_reg_enable) {
@@ -778,8 +779,8 @@ static int r5u870_set_manual_ctrls_wdm(struct r5u870_ctx *vhp, int auto_offset)
 }
 
 static int r5u870_set_ctrl_wdm(struct usbcam_dev *udp,
-			       const struct usbcam_ctrl *basep,
-			       const struct v4l2_ext_control *c)
+				   const struct usbcam_ctrl *basep,
+				   const struct v4l2_ext_control *c)
 {
 	struct r5u870_ctx *vhp = udp_r5u870(udp);
 	struct r5u870_ctrl *ctrlp = container_of(basep, struct r5u870_ctrl,
@@ -866,137 +867,139 @@ enum {
 #define V4L2_CID_SHARPNESS		(V4L2_CID_BASE+30)
 #define V4L2_CID_LASTP1			(V4L2_CID_BASE+31) /* last CID + 1 */
 
-static const char *r5u870_powerline_names[] = { "Off", "50Hz", "60Hz" };
+/* 2007-09-09 TJ Ensure names are identical to uvcvideo,
+ * so user applications aren't confused by differing results for UVC queries */
+static const char *r5u870_powerline_names[] = { "Disabled", "50 Hz", "60 Hz" };
 
 /* TODO: Use our own internal control IDs, instead of crap unmerged ones. */
 static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 
 	[R5U870_WDM_CTRL_BRIGHTNESS] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_BRIGHTNESS,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Brightness",
-				      .minimum = 0,
-				      .maximum = 127,
-				      .step = 1,
-				      .default_value = 63,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Brightness",
+					  .minimum = 0,
+					  .maximum = 127,
+					  .step = 1,
+					  .default_value = 63,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_BRIGHTNESS,
 	},
 	[R5U870_WDM_CTRL_CONTRAST] = { 
 		.base = { .uc_v4l = { .id = V4L2_CID_CONTRAST,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Contrast",
-				      .minimum = 0,
-				      .maximum = 127,
-				      .step = 1,
-				      .default_value = 63,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Contrast",
+					  .minimum = 0,
+					  .maximum = 127,
+					  .step = 1,
+					  .default_value = 63,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_CONTRAST,
 	},
 	[R5U870_WDM_CTRL_SATURATION] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_SATURATION,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Saturation",
-				      .minimum = 0,
-				      .maximum = 127,
-				      .step = 1,
-				      .default_value = 63,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Saturation",
+					  .minimum = 0,
+					  .maximum = 127,
+					  .step = 1,
+					  .default_value = 63,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_SATURATION,
 	},
 	[R5U870_WDM_CTRL_SHARPNESS] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_SHARPNESS,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Sharpness",
-				      .minimum = 0,
-				      .maximum = 127,
-				      .step = 1,
-				      .default_value = 63,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Sharpness",
+					  .minimum = 0,
+					  .maximum = 127,
+					  .step = 1,
+					  .default_value = 63,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_SHARPNESS,
 	},
 	[R5U870_WDM_CTRL_HUE] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_HUE,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Hue",
-				      .minimum = -180,
-				      .maximum = 180,
-				      .step = 1,
-				      .default_value = 0,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Hue",
+					  .minimum = -180,
+					  .maximum = 180,
+					  .step = 1,
+					  .default_value = 0,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_HUE,
 	},
 	[R5U870_WDM_CTRL_GAMMA] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_GAMMA,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Gamma",
-				      .minimum = 0,
-				      .maximum = 500,
-				      .step = 1,
-				      .default_value = 100,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Gamma",
+					  .minimum = 0,
+					  .maximum = 500,
+					  .step = 1,
+					  .default_value = 100,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_GAMMA,
 	},
 	[R5U870_WDM_CTRL_BACKLIGHT_COMP_500] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_BACKLIGHT_COMP,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Backlight Compensation",
-				      .minimum = 0,
-				      .maximum = 500,
-				      .step = 1,
-				      .default_value = 250,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Backlight Compensation",
+					  .minimum = 0,
+					  .maximum = 500,
+					  .step = 1,
+					  .default_value = 250,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_BACKLIGHT_COMP,
 	},
 	[R5U870_WDM_CTRL_BACKLIGHT_COMP_500_DEF1] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_BACKLIGHT_COMP,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Backlight Compensation",
-				      .minimum = 0,
-				      .maximum = 500,
-				      .step = 1,
-				      .default_value = 1,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Backlight Compensation",
+					  .minimum = 0,
+					  .maximum = 500,
+					  .step = 1,
+					  .default_value = 1,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_BACKLIGHT_COMP,
 	},
 	[R5U870_WDM_CTRL_BACKLIGHT_COMP_X1834] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_BACKLIGHT_COMP,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Backlight Compensation",
-				      .minimum = 0,
-				      .maximum = 2,
-				      .step = 1,
-				      .default_value = 1,
-				      .flags = V4L2_CTRL_FLAG_SLIDER },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Backlight Compensation",
+					  .minimum = 0,
+					  .maximum = 2,
+					  .step = 1,
+					  .default_value = 1,
+					  .flags = V4L2_CTRL_FLAG_SLIDER },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_BACKLIGHT_COMP_2,
 	},
 	[R5U870_WDM_CTRL_WB_RED] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_RED_BALANCE,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "White Balance Red",
-				      .minimum = 0,
-				      .maximum = 255,
-				      .step = 1,
-				      .default_value = 127,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "White Balance Red",
+					  .minimum = 0,
+					  .maximum = 255,
+					  .step = 1,
+					  .default_value = 127,
+					  .flags = 0 },
 			  .query_fn = r5u870_query_ctrl,
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
@@ -1005,13 +1008,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_WB_GREEN] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_GREEN_BALANCE,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "White Balance Green",
-				      .minimum = 0,
-				      .maximum = 255,
-				      .step = 1,
-				      .default_value = 127,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "White Balance Green",
+					  .minimum = 0,
+					  .maximum = 255,
+					  .step = 1,
+					  .default_value = 127,
+					  .flags = 0 },
 			  .query_fn = r5u870_query_ctrl,
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
@@ -1020,13 +1023,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_WB_BLUE] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_BLUE_BALANCE,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "White Balance Blue",
-				      .minimum = 0,
-				      .maximum = 255,
-				      .step = 1,
-				      .default_value = 127,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "White Balance Blue",
+					  .minimum = 0,
+					  .maximum = 255,
+					  .step = 1,
+					  .default_value = 127,
+					  .flags = 0 },
 			  .query_fn = r5u870_query_ctrl,
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
@@ -1035,13 +1038,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_WB_AUTO] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_AUTO_WHITE_BALANCE,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "Auto White Balance",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 1,
-				      .flags = V4L2_CTRL_FLAG_UPDATE },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "Auto White Balance",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 1,
+					  .flags = V4L2_CTRL_FLAG_UPDATE },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_WB_AUTO_EX,
@@ -1050,13 +1053,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_AUTO_EXPOSURE] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_AUTOEXPOSURE,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "Auto Exposure Control",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 1,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "Auto Exposure Control",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 1,
+					  .flags = 0 },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_AEC_EX,
@@ -1065,13 +1068,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_EXPOSURE] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_EXPOSURE,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Exposure",
-				      .minimum = 0,
-				      .maximum = 511,
-				      .step = 1,
-				      .default_value = 255,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Exposure",
+					  .minimum = 0,
+					  .maximum = 511,
+					  .step = 1,
+					  .default_value = 255,
+					  .flags = 0 },
 			  .query_fn = r5u870_query_ctrl,
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
@@ -1080,13 +1083,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_AUTO_GAIN] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_AUTOGAIN,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "Auto Gain Control",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 1,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "Auto Gain Control",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 1,
+					  .flags = 0 },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_AGC_EX,
@@ -1095,13 +1098,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_GAIN] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_GAIN,
-				      .type = V4L2_CTRL_TYPE_INTEGER,
-				      .name = "Gain",
-				      .minimum = 0,
-				      .maximum = 127,
-				      .step = 1,
-				      .default_value = 63,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_INTEGER,
+					  .name = "Gain",
+					  .minimum = 0,
+					  .maximum = 127,
+					  .step = 1,
+					  .default_value = 63,
+					  .flags = 0 },
 			  .query_fn = r5u870_query_ctrl,
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
@@ -1110,13 +1113,13 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_POWERLINE] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_POWER_LINE_FREQ,
-				      .type = V4L2_CTRL_TYPE_MENU,
-				      .name = "Power Line Frequency",
-				      .minimum = 0,
-				      .maximum = 2,
-				      .step = 1,
-				      .default_value = 0,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_MENU,
+					  .name = "Power Line Frequency",
+					  .minimum = 0,
+					  .maximum = 2,
+					  .step = 1,
+					  .default_value = 0,
+					  .flags = 0 },
 			  .uc_menu_names = r5u870_powerline_names,
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
@@ -1124,65 +1127,67 @@ static struct r5u870_ctrl r5u870_wdm_ctrls[] = {
 	},
 	[R5U870_WDM_CTRL_VFLIP] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_VFLIP,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "V-Flip",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 0,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "V-Flip",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 0,
+					  .flags = 0 },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_VFLIP_EX,
 	},
 	[R5U870_WDM_CTRL_VFLIP_DEFAULTON] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_VFLIP,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "V-Flip",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 1,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "V-Flip",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 1,
+					  .flags = 0 },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_VFLIP_EX,
 	},
 	[R5U870_WDM_CTRL_HFLIP] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_HFLIP,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "H-Flip",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 0,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "H-Flip",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 0,
+					  .flags = 0 },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_HFLIP_EX,
 	},
 	[R5U870_WDM_CTRL_PRIVACY] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_PRIVACY,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "Privacy",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 0,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "Privacy",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 0,
+					  .flags = 0 },
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_PRIVACY_EX,
 	},
 	[R5U870_WDM_CTRL_NIGHTMODE] = {
 		.base = { .uc_v4l = { .id = V4L2_CID_NIGHT_MODE,
-				      .type = V4L2_CTRL_TYPE_BOOLEAN,
-				      .name = "Night Mode",
-				      .minimum = 0,
-				      .maximum = 1,
-				      .step = 1,
-				      .default_value = 0,
-				      .flags = 0 },
+					  .type = V4L2_CTRL_TYPE_BOOLEAN,
+					  .name = "Night Mode",
+					  .minimum = 0,
+					  .maximum = 1,
+					  .step = 1,
+					  .default_value = 0,
+					  .flags = 0 },
+			  /*  2007-09-09 TJ Add missing IOCTL query */
+			  .query_fn = r5u870_query_ctrl, 
 			  .get_fn = r5u870_get_ctrl,
 			  .set_fn = r5u870_set_ctrl_wdm },
 		.reg = R5U870_REG_NIGHT_MODE_EX,
@@ -1197,8 +1202,8 @@ static int r5u870_wdm_add_ctrls(struct r5u870_ctx *vhp, const int *ctrlarray)
 	for (i = 0; ctrlarray[i] != R5U870_WDM_CTRL_LAST; i++) {
 		ncp = (struct r5u870_ctrl *)
 			usbcam_ctrl_add_tmpl(vhp->vh_parent,
-				     &r5u870_wdm_ctrls[ctrlarray[i]].base,
-					     sizeof(*ncp));
+					 &r5u870_wdm_ctrls[ctrlarray[i]].base,
+						 sizeof(*ncp));
 		if (!ncp)
 			return -ENOMEM;
 	}
@@ -1263,13 +1268,13 @@ static int r5u870_uvc_req(struct r5u870_ctx *vhp, int cmd,
 	out = (cmd == UVC_SET_CUR) ? 1 : 0;
 
 retry:
-    /* TODO: Base our other retry control message off this one. */
+	/* TODO: Base our other retry control message off this one. */
 	res = r5u870_control_msg(vhp, out, 1, cmd,
 				 (valhi << 8) | vallow, (idxhi << 8) | idxlow,
 				 buf, len);
 
 	if (res != -EPIPE)
-	    //r5u_err(vhp, "res != -EPIPE.");
+		//r5u_err(vhp, "res != -EPIPE.");
 		goto complete;
 
 	stres = r5u870_control_msg(vhp, 0, 1, UVC_GET_CUR,
@@ -1278,7 +1283,7 @@ retry:
 				   stbuf, sizeof(stbuf));
 
 	if (((stres == -EPIPE) && --tries) ||
-	    ((stres == 1) && (stbuf[0] == 1) && --tries)) {
+		((stres == 1) && (stbuf[0] == 1) && --tries)) {
 		msleep(5);
 		r5u_err(vhp, "uvc_req: retrying - EPIPE/stres error.");
 		goto retry;
@@ -1302,8 +1307,8 @@ complete:
 }
 
 static int r5u870_set_fmt_uvc(struct r5u870_ctx *vhp,
-			      const struct r5u870_pix_fmt *fmtp,
-			      const struct r5u870_resolution *resp)
+				  const struct r5u870_pix_fmt *fmtp,
+				  const struct r5u870_resolution *resp)
 {
 	unsigned char buf[26];
 	int res;
@@ -1320,7 +1325,7 @@ static int r5u870_set_fmt_uvc(struct r5u870_ctx *vhp,
 		resp->rw_width, resp->rw_height, resp->rw_interval);
 
 	res = r5u870_uvc_req(vhp, UVC_SET_CUR, UVC_VS_PROBE_CONTROL, 0,
-			     0, vhp->vh_iso_ifnum, buf, sizeof(buf));
+				 0, vhp->vh_iso_ifnum, buf, sizeof(buf));
 	if (res != sizeof(buf)) {
 		r5u_err(vhp, "%s: probe_control set_cur1: short write %d",
 			__FUNCTION__, res);
@@ -1329,7 +1334,7 @@ static int r5u870_set_fmt_uvc(struct r5u870_ctx *vhp,
 	}
 
 	res = r5u870_uvc_req(vhp, UVC_GET_CUR, UVC_VS_PROBE_CONTROL, 0,
-			     0, vhp->vh_iso_ifnum, buf, sizeof(buf));
+				 0, vhp->vh_iso_ifnum, buf, sizeof(buf));
 	if (res != sizeof(buf)) {
 		r5u_err(vhp, "%s: probe_control get_cur: short read %d",
 			__FUNCTION__, res);
@@ -1349,7 +1354,7 @@ static int r5u870_set_fmt_uvc(struct r5u870_ctx *vhp,
 	}
 
 	res = r5u870_uvc_req(vhp, UVC_SET_CUR, UVC_VS_COMMIT_CONTROL, 0,
-			     0, vhp->vh_iso_ifnum, buf, sizeof(buf));
+				 0, vhp->vh_iso_ifnum, buf, sizeof(buf));
 	if (res != sizeof(buf)) {
 		r5u_err(vhp, "%s: commit_control set_cur2: short write %d",
 			__FUNCTION__, res);
@@ -1403,7 +1408,7 @@ static int r5u870_decide_pkt_uvc(struct r5u870_ctx *vhp, int pktstatus,
 	*start = pktdata[0];
 	if (pktdata[1] & 2) {
 		if (vhp->vh_frame_accum <
-		    vhp->vh_parent->ud_format.sizeimage) {
+			vhp->vh_parent->ud_format.sizeimage) {
 			r5u_err(vhp, "warning: short frame (exp:%d got:%d)",
 				vhp->vh_parent->ud_format.sizeimage,
 				vhp->vh_frame_accum);
@@ -1431,14 +1436,14 @@ static const struct r5u870_uvc_fmtinfo {
 	{ .fi_name = "YUY2 4:2:2",
 	  .fi_v4l_id = V4L2_PIX_FMT_YUYV,
 	  .fi_guid = { 0x59, 0x55, 0x59, 0x32, 0x00, 0x00, 0x10, 0x00,
-		       0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 } },
+			   0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 } },
 	{ }
 };
 
 static int r5u870_uvc_add_resolution(struct r5u870_ctx *vhp,
-				     struct r5u870_pix_fmt *fmtp,
-				     int width, int height, int reqbw,
-				     int frameidx, int interval)
+					 struct r5u870_pix_fmt *fmtp,
+					 int width, int height, int reqbw,
+					 int frameidx, int interval)
 {
 	int i;
 	struct r5u870_resolution *resp;
@@ -1478,8 +1483,8 @@ static int r5u870_uvc_add_resolution(struct r5u870_ctx *vhp,
 }
 
 static int r5u870_uvc_add_fmt(struct r5u870_ctx *vhp, const u8 *guid,
-			      int fmtidx, int nresolutions,
-			      struct r5u870_pix_fmt **new_fmt)
+				  int fmtidx, int nresolutions,
+				  struct r5u870_pix_fmt **new_fmt)
 {
 	const struct r5u870_uvc_fmtinfo *fip, *fmtarray = r5u870_uvc_fmts;
 	struct r5u870_pix_fmt *nfp, *fmtp;
@@ -1526,7 +1531,7 @@ static int r5u870_uvc_add_fmt(struct r5u870_ctx *vhp, const u8 *guid,
 	}
 
 	memset((char *)fmtp->rp_restbl, 0,
-	       (1 + nresolutions) * sizeof(*fmtp->rp_restbl));
+		   (1 + nresolutions) * sizeof(*fmtp->rp_restbl));
 	fmtp->rp_restbl_alloc = nresolutions;
 
 	if (vhp->vh_npixfmts && vhp->vh_dyn_pixfmts)
@@ -1565,8 +1570,8 @@ static int r5u870_uvc_parse_vs(struct r5u870_ctx *vhp, int ifnum)
 	aintf = intf->cur_altsetting;
 
 	for (desc = aintf->extra, rlen = aintf->extralen;
-	     rlen > 2;
-	     rlen -= desc[0], desc += desc[0]) {
+		 rlen > 2;
+		 rlen -= desc[0], desc += desc[0]) {
 
 		dlen = desc[0];
 		if (dlen < 2)
@@ -1724,8 +1729,8 @@ static struct r5u870_uvc_ctrlinfo r5u870_uvc_proc_ctrls[] = {
 };
 
 static int r5u870_uvc_ctrl_req(struct r5u870_ctx *vhp,
-			       const struct r5u870_ctrl *ctrlp,
-			       int req, int *value)
+				   const struct r5u870_ctrl *ctrlp,
+				   int req, int *value)
 {
 	u8 buf[4];
 	int size, i, val, res;
@@ -1744,8 +1749,8 @@ static int r5u870_uvc_ctrl_req(struct r5u870_ctx *vhp,
 
 	if (req != UVC_SET_CUR) {
 		res = r5u870_uvc_req(vhp, req, ctrlp->reg, 0,
-				     ctrlp->unit, vhp->vh_ctrl_ifnum,
-				     buf, size);
+					 ctrlp->unit, vhp->vh_ctrl_ifnum,
+					 buf, size);
 		if (res < 0)
 			return res;
 		if (res != size) {
@@ -1778,8 +1783,8 @@ static int r5u870_uvc_ctrl_req(struct r5u870_ctx *vhp,
 		buf[i] = val & 0xff;
 
 	res = r5u870_uvc_req(vhp, UVC_SET_CUR, ctrlp->reg, 0,
-			     ctrlp->unit, vhp->vh_ctrl_ifnum,
-			     buf, size);
+				 ctrlp->unit, vhp->vh_ctrl_ifnum,
+				 buf, size);
 	if (res < 0)
 		return res;
 	if (res != size) {
@@ -1792,8 +1797,8 @@ static int r5u870_uvc_ctrl_req(struct r5u870_ctx *vhp,
 }
 
 static int r5u870_set_ctrl_uvc(struct usbcam_dev *udp,
-			       const struct usbcam_ctrl *basep,
-			       const struct v4l2_ext_control *c)
+				   const struct usbcam_ctrl *basep,
+				   const struct v4l2_ext_control *c)
 {
 	struct r5u870_ctx *vhp = udp_r5u870(udp);
 	struct r5u870_ctrl *ctrlp = container_of(basep, struct r5u870_ctrl,
@@ -1943,8 +1948,8 @@ static int r5u870_uvc_parse_vc(struct r5u870_ctx *vhp)
 	vhp->vh_ctrl_ifnum = aintf->desc.bInterfaceNumber;
 
 	for (desc = aintf->extra, rlen = aintf->extralen;
-	     rlen > 2;
-	     rlen -= desc[0], desc += desc[0]) {
+		 rlen > 2;
+		 rlen -= desc[0], desc += desc[0]) {
 
 		dlen = desc[0];
 		if (dlen < 2)
@@ -1965,7 +1970,7 @@ static int r5u870_uvc_parse_vc(struct r5u870_ctx *vhp)
 
 			for (i = 0; i < count; i++) {
 				res = usbcam_claim_interface(vhp->vh_parent,
-							     desc[12 + i]);
+								 desc[12 + i]);
 				if (res)
 					r5u_err(vhp, "interface %d already "
 						"claimed", desc[12 + i]);
@@ -2056,7 +2061,7 @@ static void r5u870_iso_packet_done(struct usbcam_dev *udp,
 			}
 
 			BUG_ON(pktlen - start + vhp->vh_framebuf_offset >
-			       cf.uf_size);
+				   cf.uf_size);
 
 			/*
 			 * This is our one and only memcpy.
@@ -2065,8 +2070,8 @@ static void r5u870_iso_packet_done(struct usbcam_dev *udp,
 			 * packets the camera will choose to return data.
 			 */
 			memcpy(cf.uf_base + vhp->vh_framebuf_offset,
-			       pktdata + start,
-			       pktlen - start);
+				   pktdata + start,
+				   pktlen - start);
 			vhp->vh_framebuf_offset += (pktlen - start);
 		}
 
@@ -2086,7 +2091,7 @@ static void r5u870_iso_packet_done(struct usbcam_dev *udp,
 }
 
 static void r5u870_iso_submit_error(struct usbcam_dev *udp,
-				    struct usbcam_urbstream *usp, int status)
+					struct usbcam_urbstream *usp, int status)
 {
 	struct r5u870_ctx *vhp = udp_r5u870(udp);
 	r5u_dbg(vhp, R5U_FRAME, "iso submit error: %d", status);
@@ -2113,7 +2118,7 @@ static void r5u870_usbcam_release(struct usbcam_dev *udp)
 
 static const struct r5u870_model *r5u870_find_model(int driver_info);
 static int r5u870_usbcam_init(struct usbcam_dev *udp,
-			      const struct usb_device_id *devid)
+				  const struct usb_device_id *devid)
 {
 	struct r5u870_ctx *vhp;
 	int model_info;
@@ -2217,7 +2222,7 @@ static int r5u870_usbcam_init(struct usbcam_dev *udp,
 	udp->ud_format.field = V4L2_FIELD_INTERLACED;
 	udp->ud_format.bytesperline = udp->ud_format.width * 2;
 	udp->ud_format.sizeimage = (udp->ud_format.width *
-				    udp->ud_format.height * 2);
+					udp->ud_format.height * 2);
 	udp->ud_format.colorspace = V4L2_COLORSPACE_SMPTE170M;
 
 	/* Configure default values for all controls */
@@ -2270,8 +2275,8 @@ static int r5u870_usbcam_resume(struct usbcam_dev *udp)
 }
 
 static int r5u870_try_format(struct usbcam_dev *udp, struct v4l2_pix_format *f,
-			     const struct r5u870_pix_fmt **fmt_out,
-			     const struct r5u870_resolution **res_out)
+				 const struct r5u870_pix_fmt **fmt_out,
+				 const struct r5u870_resolution **res_out)
 {
 	struct r5u870_ctx *vhp = udp_r5u870(udp);
 	const struct r5u870_pix_fmt *fmt;
@@ -2306,7 +2311,7 @@ static int r5u870_try_format(struct usbcam_dev *udp, struct v4l2_pix_format *f,
 		}
 		else if (res->rw_height > f->height) {
 			if ((restbl[i].rw_width <= f->width) &&
-			    (restbl[i].rw_height < res->rw_height))
+				(restbl[i].rw_height < res->rw_height))
 				res = &restbl[i];
 		}
 		else if ((restbl[i].rw_width <= f->width) &&
@@ -2348,13 +2353,13 @@ static int r5u870_try_format(struct usbcam_dev *udp, struct v4l2_pix_format *f,
 }
 
 static int r5u870_usbcam_try_format(struct usbcam_dev *udp,
-				    struct v4l2_pix_format *f)
+					struct v4l2_pix_format *f)
 {
 	return r5u870_try_format(udp, f, NULL, NULL);
 }
 
 static int r5u870_usbcam_set_format(struct usbcam_dev *udp,
-				    struct v4l2_pix_format *f)
+					struct v4l2_pix_format *f)
 {
 	struct r5u870_ctx *vhp = udp_r5u870(udp);
 	const struct r5u870_pix_fmt *fmt_out;
@@ -2366,9 +2371,9 @@ static int r5u870_usbcam_set_format(struct usbcam_dev *udp,
 		return res;
 
 	if ((udp->ud_format.width != f->width) ||
-	    (udp->ud_format.height != f->height) ||
-	    (udp->ud_format.pixelformat != f->pixelformat) ||
-	    (udp->ud_format.sizeimage != f->sizeimage))
+		(udp->ud_format.height != f->height) ||
+		(udp->ud_format.pixelformat != f->pixelformat) ||
+		(udp->ud_format.sizeimage != f->sizeimage))
 		vhp->vh_configured = 0;
 
 	udp->ud_format = *f;
@@ -2391,12 +2396,12 @@ static int r5u870_config_iso_ep(struct r5u870_ctx *vhp)
 		vhp->vh_ctrl_sync = 0;
 
 		res = usbcam_choose_altsetting(vhp->vh_parent,
-					       vhp->vh_iso_ifnum,
-					       usb_rcvisocpipe(r5u870_dev(vhp),
-							       vhp->vh_iso_ep),
-					       vhp->vh_res->rw_reqbw,
-					       vhp->vh_iso_minpacket, -1,
-					       &vhp->vh_act_altsetting);
+						   vhp->vh_iso_ifnum,
+						   usb_rcvisocpipe(r5u870_dev(vhp),
+								   vhp->vh_iso_ep),
+						   vhp->vh_res->rw_reqbw,
+						   vhp->vh_iso_minpacket, -1,
+						   &vhp->vh_act_altsetting);
 		if (res) {
 			r5u_err(vhp, "need %d B/s, no altsetting provides",
 				vhp->vh_res->rw_reqbw);
@@ -2519,7 +2524,7 @@ static struct usbcam_dev_ops r5u870_usbcam_dev_ops = {
 	.disconnect	= r5u870_usbcam_disconnect,
 	.release	= r5u870_usbcam_release,
 	.suspend	= r5u870_usbcam_suspend,
-	.resume		= r5u870_usbcam_resume,
+	.resume		= r5u870_usbcam_resume,	
 	.try_format	= r5u870_usbcam_try_format,
 	.set_format	= r5u870_usbcam_set_format,
 	.cap_start	= r5u870_usbcam_cap_start,
@@ -2633,6 +2638,17 @@ static const int r5u870_1870_ctrls[] = {
  * Even the UVC models do not express all of their controls in the UVC
  * descriptor tables, and get sets of hard-coded vendor controls
  */
+
+// FIXME: This device still has a bunch of unknown control IDs.
+static const int r5u870_1812_ctrls[] = {
+	R5U870_WDM_CTRL_WB_RED,
+	R5U870_WDM_CTRL_WB_GREEN,
+	R5U870_WDM_CTRL_WB_BLUE,
+	R5U870_WDM_CTRL_VFLIP,
+	R5U870_WDM_CTRL_HFLIP,
+	R5U870_WDM_CTRL_PRIVACY,
+	R5U870_WDM_CTRL_LAST,
+};
 static const int r5u870_1835_ctrls[] = {
 	R5U870_WDM_CTRL_WB_RED,
 	R5U870_WDM_CTRL_WB_GREEN,
@@ -2683,8 +2699,8 @@ static const int r5u870_1810_183a_ctrls[] = {
 	R5U870_WDM_CTRL_LAST,
 };
 static const int r5u870_1810_183b_ctrls[] = {
-    /* TODO: Maybe there are more of these? I don't actually have a webcam
-       to test against the different WDM controls. */
+	/* TODO: Maybe there are more of these? I don't actually have a webcam
+	   to test against the different WDM controls. */
  	R5U870_WDM_CTRL_WB_RED, 
  	R5U870_WDM_CTRL_WB_GREEN,
  	R5U870_WDM_CTRL_WB_BLUE, 
@@ -2696,8 +2712,21 @@ static const int r5u870_1810_183b_ctrls[] = {
 	R5U870_WDM_CTRL_LAST,
 };
 static const int r5u870_1810_1839_ctrls[] = {
-    /* TODO: Maybe there are more of these? I don't actually have a webcam
-       to test against the different WDM controls. */
+	/* TODO: Maybe there are more of these? I don't actually have a webcam
+   	   to test against the different WDM controls. */
+	R5U870_WDM_CTRL_WB_RED,
+	R5U870_WDM_CTRL_WB_GREEN,
+	R5U870_WDM_CTRL_WB_BLUE,
+	R5U870_WDM_CTRL_WB_AUTO,
+	R5U870_WDM_CTRL_VFLIP,
+	R5U870_WDM_CTRL_HFLIP,
+	R5U870_WDM_CTRL_PRIVACY,
+	R5U870_WDM_CTRL_LAST,
+};
+
+static const int r5u870_1841_ctrls[] = {
+	/* TODO: Maybe there are more of these? I don't actually have a webcam
+	   to test against the different WDM controls. */
 	R5U870_WDM_CTRL_WB_RED,
 	R5U870_WDM_CTRL_WB_GREEN,
 	R5U870_WDM_CTRL_WB_BLUE,
@@ -2736,27 +2765,27 @@ static const struct r5u870_resolution r5u870_sxga_wdm_res[] = {
 };
 static struct r5u870_pix_fmt r5u870_vga_wdm_pixfmts[] = {
 	{ .base = { .description = "YUY2 4:2:2",
-		    .pixelformat = V4L2_PIX_FMT_YUYV,
-		    .flags = 0 },
+			.pixelformat = V4L2_PIX_FMT_YUYV,
+			.flags = 0 },
 	  .rp_formatidx = 0,
 	  .rp_restbl = r5u870_vga_wdm_res },
 
 	{ .base = { .description = "UYVY 4:2:2",
-		    .pixelformat = V4L2_PIX_FMT_UYVY,
-		    .flags = 0 },
+			.pixelformat = V4L2_PIX_FMT_UYVY,
+			.flags = 0 },
 	  .rp_formatidx = 1,
 	  .rp_restbl = r5u870_vga_wdm_res },
 };
 static struct r5u870_pix_fmt r5u870_sxga_wdm_pixfmts[] = {
 	{ .base = { .description = "YUY2 4:2:2",
-		    .pixelformat = V4L2_PIX_FMT_YUYV,
-		    .flags = 0 },
+			.pixelformat = V4L2_PIX_FMT_YUYV,
+			.flags = 0 },
 	  .rp_formatidx = 0,
 	  .rp_restbl = r5u870_sxga_wdm_res },
 
 	{ .base = { .description = "UYVY 4:2:2",
-		    .pixelformat = V4L2_PIX_FMT_UYVY,
-		    .flags = 0 },
+			.pixelformat = V4L2_PIX_FMT_UYVY,
+			.flags = 0 },
 	  .rp_formatidx = 1,
 	  .rp_restbl = r5u870_sxga_wdm_res },
 };
@@ -2776,8 +2805,9 @@ enum {
 	R5U870_DI_HP_WEBCAM1K,
 	R5U870_DI_HP_PAVWC_WDM,
 	R5U870_DI_HP_PAVWC_UVC,
-	R5U870_DI_HP_PAVWC_UVC_1,
+	R5U870_DI_HP_PAVWC_UVC_NOFW,
 	R5U870_DI_GENERIC_UVC,
+	R5U870_DI_FUJITSU,
 };
 
 static const struct r5u870_model r5u870_models[] = {
@@ -2852,8 +2882,15 @@ static const struct r5u870_model r5u870_models[] = {
 	[R5U870_DI_VGP_VCC8] = {
 		.rm_name = "Sony VGP-VCC8",
 		.rm_ucode_file = "r5u870_183b.fw",
-		.rm_ucode_version = 0x0111,
+		.rm_ucode_version = 0x0131,
 		.rm_wdm_ctrlids = r5u870_1810_183b_ctrls,
+		.rm_uvc = 1,
+	},
+	[R5U870_DI_FUJITSU] = {
+		.rm_name = "Fujitsu F01",
+		.rm_ucode_file = "r5u870_1841.fw",
+		.rm_ucode_version = 0x0103,
+		.rm_wdm_ctrlids = r5u870_1841_ctrls,
 		.rm_uvc = 1,
 	},
 	[R5U870_DI_HP_WEBCAM1K] = {
@@ -2881,11 +2918,9 @@ static const struct r5u870_model r5u870_models[] = {
 		.rm_uvc = 1,
 		.rm_no_ctrl_reload = 1,
 	},
-	[R5U870_DI_HP_PAVWC_UVC_1] = {
-		.rm_name = "HP Pavilion Webcam (testing)",
-		.rm_ucode_file = "r5u870_1812.fw",
-		.rm_ucode_version = 0x0115,
-		.rm_wdm_ctrlids = r5u870_1810_1836_ctrls,
+	[R5U870_DI_HP_PAVWC_UVC_NOFW] = {
+		.rm_name = "HP Pavilion Webcam (UVC - NO FW)",
+		.rm_wdm_ctrlids = r5u870_1812_ctrls,
 		.rm_uvc = 1,
 		.rm_no_ctrl_reload = 1,
 	},
@@ -2918,9 +2953,9 @@ static int r5u870_check_hp_dv1000(void)
 		printk(KERN_INFO "r5u870: No DMI model found\n");
 	else {
 		printk(KERN_INFO "r5u870: Found DMI model: \"%s\"\n",
-		       prod_name);
+			   prod_name);
 		if (!strncmp(prod_name, "HP Pavilion dv1000", 18) &&
-		    !isdigit(prod_name[18]))
+			!isdigit(prod_name[18]))
 			return 1;
 	}
 	return 0;
@@ -2933,7 +2968,7 @@ static const struct r5u870_model *r5u870_find_model(int driver_info)
 			driver_info = R5U870_DI_HP_WEBCAM1K;
 	}
 	if ((driver_info <= R5U870_DI_INVALID) ||
-	    (driver_info >= ARRAY_SIZE(r5u870_models)))
+		(driver_info >= ARRAY_SIZE(r5u870_models)))
 		return NULL;
 	if (!r5u870_models[driver_info].rm_name)
 		return NULL;
@@ -2959,7 +2994,7 @@ static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(0x05CA, 0x1870), .driver_info = R5U870_DI_HP_PAVWC_WDM },
 
 	{ R5U870_DEVICE_UVC(0x05CA, 0x1810, R5U870_DI_HP_PAVWC_UVC) },
-	{ R5U870_DEVICE_UVC(0x05CA, 0x1812, R5U870_DI_HP_PAVWC_UVC) },
+	{ R5U870_DEVICE_UVC(0x05CA, 0x1812, R5U870_DI_HP_PAVWC_UVC_NOFW) },
 	{ R5U870_DEVICE_UVC(0x05CA, 0x1835, R5U870_DI_VGP_VCC5) },
 	{ R5U870_DEVICE_UVC(0x05CA, 0x1836, R5U870_DI_VGP_VCC4) },
 	{ R5U870_DEVICE_UVC(0x05CA, 0x1837, R5U870_DI_VGP_VCC4_VFLIP) },
@@ -2967,14 +3002,15 @@ static const struct usb_device_id id_table[] = {
 	{ R5U870_DEVICE_UVC(0x05CA, 0x1839, R5U870_DI_VGP_VCC6) },
 	{ R5U870_DEVICE_UVC(0x05CA, 0x183a, R5U870_DI_VGP_VCC7) },
 	{ R5U870_DEVICE_UVC(0x05CA, 0x183b, R5U870_DI_VGP_VCC8) },
+	{ R5U870_DEVICE_UVC(0x05CA, 0x1841, R5U870_DI_FUJITSU) },
 	{ },
 };
 
 
 DEFINE_USBCAM_MINIDRV_MODULE(R5U870_VERSION, R5U870_VERSION_EXTRA,
-			     &r5u870_usbcam_dev_ops,
-			     sizeof(struct r5u870_ctx),
-			     id_table)
+				 &r5u870_usbcam_dev_ops,
+				 sizeof(struct r5u870_ctx),
+				 id_table)
 
 MODULE_DEVICE_TABLE(usb, id_table);
 MODULE_DESCRIPTION("Driver for Ricoh R5U870-based Webcams");

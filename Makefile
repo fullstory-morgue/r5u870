@@ -26,7 +26,7 @@ FWDIR ?= /lib/firmware
 # Old module name to detect and complain about when installing
 OLD_MODULE_NM = ry5u870.ko
 
-FWFILES = r5u870_1830.fw r5u870_1832.fw r5u870_1833.fw r5u870_1834.fw r5u870_1835.fw r5u870_1836.fw r5u870_1870_1.fw r5u870_1870.fw r5u870_1810.fw r5u870_183a.fw r5u870_183b.fw r5u870_1839.fw 
+FWFILES = r5u870_1830.fw r5u870_1832.fw r5u870_1833.fw r5u870_1834.fw r5u870_1835.fw r5u870_1836.fw r5u870_1870_1.fw r5u870_1870.fw r5u870_1810.fw r5u870_183a.fw r5u870_183b.fw r5u870_1839.fw r5u870_1841.fw
 
 ifneq ($(KERNELRELEASE),)
 include $(src)/Kbuild

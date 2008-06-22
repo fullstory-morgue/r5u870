@@ -1,6 +1,6 @@
 /*
  * USBCAM abstraction library for USB webcam drivers
- * Version 0.11.0
+ * Version 0.11.1
  * 
  * Copyright (c) 2007 Sam Revitch <samr7 cs washington edu>
  *
@@ -30,8 +30,6 @@
 #define	__USBCAM_H__
 
 #ifdef __KERNEL__
-
-#define CONFIG_USB_USBCAM_DEBUG
 
 #include <linux/usb.h>
 #include <linux/mutex.h>
@@ -78,6 +76,7 @@ do {									\
 	}								\
 } while (0)
 extern void usbcam_hexdump(struct usbcam_dev *udp, const u8 *buf, size_t len);
+
 #else
 #define usbcam_dbg(UDP, SUBSYS, FMT, ARG...)
 #define usbcam_assert(expr)
@@ -751,6 +750,15 @@ extern int usbcam_urbstream_config_bulk(struct usbcam_urbstream *usp,
 #endif
 #endif  /* LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19) */
 
+#else
+
+#if !defined(videobuf_queue_pci_init)
+#if defined(videobuf_queue_sg_init)
+#define videobuf_queue_pci_init videobuf_queue_sg_init
+#endif
+#endif
+
 #endif /* __KERNEL__ */
+
 
 #endif /* __USBCAM_H__ */

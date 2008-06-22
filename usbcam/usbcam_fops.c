@@ -1,6 +1,6 @@
 /*
  * USBCAM abstraction library for USB webcam drivers
- * Version 0.11.0
+ * Version 0.11.1
  *
  * Copyright (c) 2007 Sam Revitch <samr7 cs washington edu>
  * Copyright (c) 2008 Alexander Hixon <hixon.alexander@mediati.org>
@@ -47,6 +47,39 @@ const static unsigned int palette2pixelformat[] = {
 	[VIDEO_PALETTE_YUV420P] = V4L2_PIX_FMT_YUV420,
 	[VIDEO_PALETTE_YUV411P] = V4L2_PIX_FMT_YUV411P,
 	[VIDEO_PALETTE_YUV422P] = V4L2_PIX_FMT_YUV422P,
+};
+
+const static char *v4l_ioctl_names[] = {
+	"UNKNOWN",
+	"VIDIOCGCAP",
+	"VIDIOCGCHAN",
+	"VIDIOCSCHAN",
+	"VIDIOCGTUNER",
+	"VIDIOCSTUNER",
+	"VIDIOCGPICT",
+	"VIDIOCSPICT",
+	"VIDIOCCAPTURE",
+	"VIDIOCGWIN",
+	"VIDIOCSWIN",
+	"VIDIOCGFBUF",
+	"VIDIOCSFBUF",
+	"VIDIOCKEY",
+	"VIDIOCGFREQ",
+	"VIDIOCSFREQ",
+	"VIDIOCGAUDIO",
+	"VIDIOCSAUDIO",
+	"VIDIOCSYNC",
+	"VIDIOCMCAPTURE",
+	"VIDIOCGMBUF",
+	"VIDIOCGUNIT",
+	"VIDIOCGCAPTURE",
+	"VIDIOCSCAPTURE",
+	"VIDIOCSPLAYMODE",
+	"VIDIOCSWRITEMODE",
+	"VIDIOCGPLAYINFO",
+	"VIDIOCSMICROCODE",
+	"VIDIOCGVBIFMT",
+	"VIDIOCSVBIFMT",
 };
 
 static unsigned int __pure
@@ -1122,7 +1155,10 @@ static int usbcam_v4l_int_ioctl(struct inode *inodep, struct file *filp,
 static int usbcam_v4l_ioctl (struct inode *inodep, struct file *file,
 	       unsigned int cmd, unsigned long arg)
 {
-	printk("usbcam: received v4l ioctl: %d\n", cmd);
+    struct usbcam_fh        *ufp = (struct usbcam_fh *) file->private_data;
+	struct usbcam_dev       *udp = ufp->ufh_dev;
+	
+	usbcam_dbg(udp, IOCTL_MISC, "received V4L ioctl: %d\n", cmd);
 	
 #ifdef CONFIG_VIDEO_V4L1_COMPAT
 	if (_IOC_TYPE(cmd) == 'v')

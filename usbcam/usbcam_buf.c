@@ -35,6 +35,21 @@ static int fixed_fbsize = 1024 * 1024;
 module_param(fixed_fbsize, int, S_IRUGO|S_IWUSR);
 MODULE_PARM_DESC(fixed_fbsize, "Size in bytes of fixed-length framebuffers");
 
+/*
+ * naresh <cyan_00391@yahoo.co.in>
+ * Define the various codes to permit compilation of this on 
+ * 2.6.25 and higher kernels, we use gcc preprocessors for backward
+ * compatibility
+ * CREDITS: Thanks to stefano.brivio for his patch.
+ *          Refer bug @ http://bugs.mediati.org/r5u870/issue2
+ */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,25)
+ #define STATE_ACTIVE      VIDEOBUF_ACTIVE
+ #define STATE_DONE        VIDEOBUF_DONE
+ #define STATE_ERROR       VIDEOBUF_ERROR
+ #define STATE_NEEDS_INIT  VIDEOBUF_NEEDS_INIT
+ #define STATE_PREPARED    VIDEOBUF_PREPARED
+#endif
 
 /*
  * Frame capture handling helpers follow
