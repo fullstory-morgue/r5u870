@@ -26,8 +26,6 @@
 #if !defined(__USBCAM_PRIV_H__)
 #define __USBCAM_PRIV_H__
 
-#define CONFIG_USB_USBCAM_DEBUG
-
 #include "usbcam.h"
 
 #include <linux/kernel.h>

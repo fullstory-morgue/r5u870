@@ -1,3 +1,16 @@
+2008-06-15  Alexander Hixon  <hixon.alexander@mediati.org>
+    Released r5u870 version 0.11.1.
+
+2008-06-15  Alexander Hixon  <hixon.alexander@mediati.org>
+    * usbcam/usbcam.h: Support for late 2.6.25 kernels and up.
+    * usbcam/usbcam.h, usbcam/usbcam_fops.c, README: Bump version to 0.11.1
+    * r5u870_1481.fw: Provide working firmware.
+
+2008-01-21  Alexander Hixon  <hixon.alexander@mediati.org>
+    * r5u870.c, Makefile, r5u870_1841.fw: Added support for the experimental
+      1841 UVC camera.
+    * r5u870.c: Fixed small bug where the wrong ucode version would be used.
+
 2008-01-25  Alexander Hixon  <hixon.alexander@mediati.org>
     * r5u870.c: Force 1812 camera to use same controls and firmware as HP
       Pavilion webcam. Still experimental.

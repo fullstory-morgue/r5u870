@@ -1,3 +1,5 @@
+include $(src)/../debug.mk
+
 usbcam-objs :=	usbcam_dev.o \
 		usbcam_fops.o \
 		usbcam_buf.o \

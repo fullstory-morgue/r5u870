@@ -1,5 +1,5 @@
 Ricoh R5U870 Linux Driver
-Version 0.11.0, 2008/1/19
+Version 0.11.1, 2008/06/15
 
 Requirements
 ============
@@ -86,6 +86,11 @@ Then you may load the module manually:
 
 insmod r5u870.ko
 
+Debugging
+=========
+
+If you would like to enable debugging, please uncomment the line found
+in debug.mk, and recompile.
 
 Driver Options
 ==============
@@ -109,10 +114,6 @@ video_nr -- list of favored minor numbers
 	associate devices with, in order, before resorting to the first
 	available minor number.
 
-debug -- bit field integer
-	Set bits described in usbcam.h (USBCAM_DBG_XXX) to enable trace
-	messages.
-
 fixed_fbsize -- integer
 	Sets the size in bytes of fixed-length frame buffers.  The default
 	value is 1MB.  This is a compatibilty feature for buggy programs
@@ -128,7 +129,7 @@ Changes from original version (0.10.0)
     obsoleted, it is still necessary to support it as a number of applications
     still use it, including GStreamer's v4lsrc element.
  *  Support for VGP-VCC7, VGP-VCC4, VGP-VCC6, and VGP-VCC8, including supplied
-    microcode.
+    microcode, as well as other cameras.
  *  Can compile against Linux kernels 2.6.24 or later.
  *  Uses a module approach to usbcam, and only require minidrivers to link
     against a header file. This code was posted in an email to LKML by Chris
@@ -137,7 +138,19 @@ Changes from original version (0.10.0)
 Bugs
 ====
 
-Send bug reports to hixon.alexander@mediati.org.
+Use the bug tracker at http://bugs.mediati.org/r5u870/.
+If you get a 404, make sure there's a forward slash on the end. :)
+
+Remember to submit in your bug report:
+  * Version of the driver
+  * Kernel version (uname -a)
+  * Distribution name & version
+  * lsusb output
+  * lsmod output
+  * dmesg output after loading r5u870 with debug=1
+  * if you're getting distorted images, a sample of the camera output
+
+Also remember to check if your bug has already been fixed!
 
 Kopete 0.12 and earlier can be used with this driver, but colors may appear
 distorted.  This is a problem with Kopete's YUV decoder, and should be fixed
@@ -149,8 +162,8 @@ to other applications that subsequently open the camera.
 Copyright and License
 =====================
 
-Copyright (C) 2007 Sam Revitch <samr7@cs.washington.edu>
-Some bits copyright (c) 2008 Alexander Hixon <hixon.alexander@mediati.org>
+Copyright (c) 2007-2008 Sam Revitch <samr7@cs.washington.edu>,
+    Alexander Hixon <hixon.alexander@mediati.org>
 
 This driver is licensed to you under the terms of the GNU GPL v2.  See
 the included file 'COPYING'.
@@ -159,6 +172,7 @@ The Makefile and Kbuild components are derived from the ivtv project.
 
 The files:
 	r5u870_1810.fw
+	r5u870_1812.fw
 	r5u870_1830.fw
 	r5u870_1832.fw
 	r5u870_1833.fw
@@ -168,6 +182,7 @@ The files:
 	r5u870_1839.fw
 	r5u870_183a.fw
 	r5u870_183b.fw
+	r5u870_1841.fw
 	r5u870_1870.fw
 	r5u870_1870_1.fw
 
@@ -178,7 +193,7 @@ including some named Mvc25u870.sys, 5U870CAP.sys, and R5U870FLx86.sys.
 Acknowledgements
 ================
 
-Hude kudos to Sam Revitch for writing the driver. Cheers, mate. I owe you a
+Huge kudos to Sam Revitch for writing the driver. Cheers, mate. I owe you a
 beer (or two). :)
 
 Thanks to Albert Vilella for establishing an interest group for this type of
@@ -201,3 +216,8 @@ recode-fw.scm script.
 
 Some friendly folk on the Ubuntu Forums for providing extracted version of
 firmwares and their associated version numbers.
+
+Thanks to 'franz' for providing an updated version of 183b driver, and testing.
+
+Thanks to Gonzalo Alvarez for testing the 1812 driver and providing usbsnoop
+traces of the device.
