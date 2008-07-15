@@ -1,6 +1,5 @@
-r5u870 (0.11.1+dfsg-2) UNRELEASED; urgency=low
+r5u870 (0.11.1+dfsg-2) unstable; urgency=low
 
-  * NOT RELEASED YET
   * Remove dh_testroot from clean target of debian/rules.
   * Add 2.6.26-compat.patch to fix compile against Linux 2.6.26.
   * Add clean_modules_order.patch to clean new kbuild products.
