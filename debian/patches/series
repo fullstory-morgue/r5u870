@@ -1,2 +1,5 @@
 sanitize_makefile.patch
 dont_redefine_V4L2_CID_LASTP1.patch
+2.6.26-compat.patch
+clean_modules_order.patch
+dont_redefine_V4L2_CID_SHARPNESS.patch

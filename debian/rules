@@ -12,7 +12,6 @@ build-stamp: $(QUILT_STAMPFN)
 
 clean: unpatch
 	dh_testdir
-	dh_testroot
 	dh_clean build-stamp install-stamp
 
 install: build install-stamp

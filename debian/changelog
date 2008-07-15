@@ -1,8 +1,13 @@
 r5u870 (0.11.1+dfsg-2) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+  * Remove dh_testroot from clean target of debian/rules.
+  * Add 2.6.26-compat.patch to fix compile against Linux 2.6.26.
+  * Add clean_modules_order.patch to clean new kbuild products.
+  * Add dont_redefine_V4L2_CID_SHARPNESS.patch to avoid redefining what
+    is in include/linux/videodev2.h.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 22 Jun 2008 20:59:15 +0200
+ -- Kel Modderman <kel@otaku42.de>  Tue, 15 Jul 2008 22:04:32 +1000
 
 r5u870 (0.11.1+dfsg-1) unstable; urgency=low
 

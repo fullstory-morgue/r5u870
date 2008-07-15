@@ -1,0 +1,32 @@
+--- a/usbcam/usbcam.h
++++ b/usbcam/usbcam.h
+@@ -749,15 +749,6 @@
+ #define V4L2_CTRL_FLAG_UPDATE 0
+ #endif
+ #endif  /* LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19) */
+-
+-#else
+-
+-#if !defined(videobuf_queue_pci_init)
+-#if defined(videobuf_queue_sg_init)
+-#define videobuf_queue_pci_init videobuf_queue_sg_init
+-#endif
+-#endif
+-
+ #endif /* __KERNEL__ */
+ 
+ 
+--- a/usbcam/usbcam_priv.h
++++ b/usbcam/usbcam_priv.h
+@@ -65,6 +65,11 @@
+ #define usb_autopm_put_interface(X)
+ #endif  /* LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19) */
+ 
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,25)
++#if !defined(videobuf_queue_pci_init)
++#define videobuf_queue_pci_init videobuf_queue_sg_init
++#endif
++#endif
+ 
+ /*
+  * When creating a minidriver that is not part of the core kernel, it
