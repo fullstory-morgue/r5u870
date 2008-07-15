@@ -1,9 +1,9 @@
 r5u870 (0.11.1+dfsg-2.1) UNRELEASED; urgency=low
 
   * Non-maintainer upload.
-  * NOT RELEASED YET
+  * add myself to uploaders.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 15 Jul 2008 14:25:13 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 15 Jul 2008 15:55:33 +0200
 
 r5u870 (0.11.1+dfsg-2) unstable; urgency=low
 
